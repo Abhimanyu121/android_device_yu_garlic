@@ -138,6 +138,8 @@ PRODUCT_PACKAGES += \
     android.hardware.configstore@1.0-service
 
 # Display
+PRODUCT_PROPERTY_OVERRIDES += debug.hwui.use_buffer_age=false
+
 PRODUCT_PACKAGES += \
     copybit.msm8937 \
     gralloc.msm8937 \

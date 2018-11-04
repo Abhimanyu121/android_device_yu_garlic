@@ -21,9 +21,9 @@
 #include <hardware/hardware.h>
 #include <hardware/fingerprint.h>
 #include <hardware/hw_auth_token.h>
+#include <android/security/IKeystoreService.h>
 #include <utils/Log.h>
 
-#include <android/security/IKeystoreService.h>
 #include "FingerprintDaemonProxy.h"
 
 namespace android {
@@ -59,7 +59,7 @@ void FingerprintDaemonProxy::hal_notify_callback(const fingerprint_msg_t *msg) {
         case FINGERPRINT_AUTHENTICATED:
             if (msg->data.authenticated.finger.fid != 0) {
                 const uint8_t* hat = reinterpret_cast<const uint8_t *>(&msg->data.authenticated.hat);
-                /*instance->notifyKeystore(hat, sizeof(msg->data.authenticated.hat));*/
+                instance->notifyKeystore(hat, sizeof(msg->data.authenticated.hat));
             }
             callback->onAuthenticated(device,
                     msg->data.authenticated.finger.fid,
@@ -95,7 +95,6 @@ void FingerprintDaemonProxy::notifyKeystore(const uint8_t *auth_token, const siz
         sp < IBinder > binder = sm->getService(String16("android.security.keystore"));
         sp<security::IKeystoreService> service = interface_cast<security::IKeystoreService>(binder);
         if (service != NULL) {
-             
             std::vector<uint8_t> auth_token_vector(auth_token, (auth_token) + auth_token_length);
                 int result = 0;
                 auto binder_result = service->addAuthToken(auth_token_vector, &result);
@@ -180,7 +179,7 @@ int64_t FingerprintDaemonProxy::openHal() {
     int err;
     const hw_module_t *hw_module = NULL;
 
-    if (0 != (err = hw_get_module("fingerprint.goodix", &hw_module))) {
+    if (0 != (err = hw_get_module(FINGERPRINT_HARDWARE_MODULE_ID, &hw_module))) {
         ALOGE("Can't open fingerprint HW Module, error: %d", err);
         return 0;
     }

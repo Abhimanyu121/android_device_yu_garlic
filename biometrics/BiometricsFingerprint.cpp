@@ -13,8 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#define LOG_TAG "android.hardware.biometrics.fingerprint@2.0-service-custom"
-#define LOG_VERBOSE "android.hardware.biometrics.fingerprint@2.0-service-custom"
+#define LOG_TAG "android.hardware.biometrics.fingerprint@2.0-service"
+#define LOG_VERBOSE "android.hardware.biometrics.fingerprint@2.0-service"
 
 #include <hardware/hw_auth_token.h>
 #include <hardware/hardware.h>
@@ -44,17 +44,18 @@ BiometricsFingerprint *BiometricsFingerprint::sInstance = nullptr;
 
 BiometricsFingerprint::BiometricsFingerprint() : mClientCallback(nullptr), mDevice(nullptr) {
     sInstance = this; // keep track of the most recent instance
-    mDevice = openHal();
-    if (!mDevice) {
-        is_goodix = true;
-        property_set("persist.sys.fp.goodix", "1");
-        ALOGE("Can't open ELAN HAL module");
-        mDevice = getWrapperService(BiometricsFingerprint::notify);
-    } else if (!mDevice) {
+    char vend [PROPERTY_VALUE_MAX];
+    property_get("ro.hardware.fingerprint", vend, NULL);
+
+    if (!strcmp(vend, "searchf")) {
         is_goodix = false;
-        property_set("persist.sys.fp.goodix", "0");
-        ALOGE("Can't open GOODIX HAL module");
-    } else {
+        mDevice = openHal();
+    } else if (!strcmp(vend, "goodix")) {
+        is_goodix = true;
+        mDevice = getWrapperService(BiometricsFingerprint::notify);
+    }
+
+    if (!mDevice) {
         ALOGE("Can't open HAL module");
     }
 }
@@ -156,6 +157,7 @@ FingerprintAcquiredInfo BiometricsFingerprint::VendorAcquiredFilter(
 
 Return<uint64_t> BiometricsFingerprint::setNotify(
         const sp<IBiometricsFingerprintClientCallback>& clientCallback) {
+    std::lock_guard<std::mutex> lock(mClientCallbackMutex);
     mClientCallback = clientCallback;
     // This is here because HAL 2.1 doesn't have a way to propagate a
     // unique token for its driver. Subsequent versions should send a unique
@@ -254,7 +256,7 @@ fingerprint_device_t* BiometricsFingerprint::openHal() {
     int err;
     const hw_module_t *hw_mdl = nullptr;
     ALOGD("Opening fingerprint hal library...");
-    if (0 != (err = hw_get_module("fingerprint.elan", &hw_mdl))) {
+    if (0 != (err = hw_get_module(FINGERPRINT_HARDWARE_MODULE_ID, &hw_mdl))) {
         ALOGE("Can't open fingerprint HW Module, error: %d", err);
         return nullptr;
     }
@@ -274,11 +276,7 @@ fingerprint_device_t* BiometricsFingerprint::openHal() {
     hw_device_t *device = nullptr;
 
     if (0 != (err = module->common.methods->open(hw_mdl, nullptr, &device))) {
-        if (err == 253) {
-            ALOGE("Can't Find Elan FP Sensor");
-        } else {
-            ALOGE("Can't open fingerprint methods, error: %d", err);
-        }
+        ALOGE("Can't open fingerprint methods, error: %d", err);
         return nullptr;
     }
 
@@ -297,6 +295,7 @@ fingerprint_device_t* BiometricsFingerprint::openHal() {
 void BiometricsFingerprint::notify(const fingerprint_msg_t *msg) {
     BiometricsFingerprint* thisPtr = static_cast<BiometricsFingerprint*>(
             BiometricsFingerprint::getInstance());
+    std::lock_guard<std::mutex> lock(thisPtr->mClientCallbackMutex);
     if (thisPtr == nullptr || thisPtr->mClientCallback == nullptr) {
         ALOGE("Receiving callbacks before the client callback is registered.");
         return;

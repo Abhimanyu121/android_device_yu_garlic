@@ -18,11 +18,11 @@
 $(call inherit-product, device/yu/garlic/full_garlic.mk)
 
 # Inherit some common LineageOS stuff.
-$(call inherit-product, vendor/lineage/config/common_full_phone.mk)
+$(call inherit-product, vendor/stag/main.mk)
 
-PRODUCT_NAME := lineage_garlic
+PRODUCT_NAME := stag_garlic
 BOARD_VENDOR := yu
-
+PRODUCT_DEVICE := garlic
 PRODUCT_GMS_CLIENTID_BASE := android-micromax
 
 TARGET_VENDOR_PRODUCT_NAME := garlic

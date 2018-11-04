@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-#define LOG_TAG "biometrics.fingerprint@2.0-service-custom"
+#define LOG_TAG "biometrics.fingerprint@2.0-service"
 
 #include <binder/IPCThreadState.h>
 #include <binder/IServiceManager.h>
-//#include <binder/PermissionCache.h>
+#include <binder/PermissionCache.h>
 #include <binder/ProcessState.h>
 #include <utils/String16.h>
 

@@ -44,7 +44,7 @@ LOCAL_SHARED_LIBRARIES += \
     libgps.utils \
     libdl \
     liblocation_api \
-
+    libloc_pla \
 LOCAL_CFLAGS += $(GNSS_CFLAGS)
 include $(BUILD_SHARED_LIBRARY)
 

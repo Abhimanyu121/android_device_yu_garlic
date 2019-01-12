@@ -1,4 +1,4 @@
-/* Copyright (c) 2015-2017 The Linux Foundation. All rights reserved.
+/* Copyright (c) 2015, 2017 The Linux Foundation. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are
@@ -27,47 +27,57 @@
  *
  */
 
-#ifndef __DATAITEMID_H__
-#define __DATAITEMID_H__
+#ifndef __ICLIENTINDEX_H__
+#define __ICLIENTINDEX_H__
 
-/**
- * Enumeration of Data Item types
- * When add/remove/update changes are made to Data Items, this file needs to be updated
- * accordingly
- */
-typedef enum e_DataItemId {
-    INVALID_DATA_ITEM_ID = -1,
-    // 0 - 4
-    AIRPLANEMODE_DATA_ITEM_ID,
-    ENH_DATA_ITEM_ID,
-    GPSSTATE_DATA_ITEM_ID,
-    NLPSTATUS_DATA_ITEM_ID,
-    WIFIHARDWARESTATE_DATA_ITEM_ID,
-    // 5 - 9
-    NETWORKINFO_DATA_ITEM_ID,
-    RILVERSION_DATA_ITEM_ID,
-    RILSERVICEINFO_DATA_ITEM_ID,
-    RILCELLINFO_DATA_ITEM_ID,
-    SERVICESTATUS_DATA_ITEM_ID,
-    // 10 - 14
-    MODEL_DATA_ITEM_ID,
-    MANUFACTURER_DATA_ITEM_ID,
-    VOICECALL_DATA_ITEM,
-    ASSISTED_GPS_DATA_ITEM_ID,
-    SCREEN_STATE_DATA_ITEM_ID,
-    // 15 - 19
-    POWER_CONNECTED_STATE_DATA_ITEM_ID,
-    TIMEZONE_CHANGE_DATA_ITEM_ID,
-    TIME_CHANGE_DATA_ITEM_ID,
-    WIFI_SUPPLICANT_STATUS_DATA_ITEM_ID,
-    SHUTDOWN_STATE_DATA_ITEM_ID,
-    // 20 - 24
-    TAC_DATA_ITEM_ID,
-    MCCMNC_DATA_ITEM_ID,
-    BTLE_SCAN_DATA_ITEM_ID,
-    BT_SCAN_DATA_ITEM_ID,
-    OEM_GTP_UPLOAD_TRIGGER_READY_ITEM_ID,
-    MAX_DATA_ITEM_ID
-} DataItemId;
+#include <list>
 
-#endif // #ifndef __DATAITEMID_H__
+namespace loc_core
+{
+
+template  <typename CT, typename DIT>
+
+class IClientIndex {
+public:
+
+    // Checks if client is subscribed
+    virtual bool isSubscribedClient (CT client) = 0;
+
+    // gets subscription list
+    virtual void getSubscribedList (CT client, std :: list <DIT> & out) = 0;
+
+    // removes an entry
+    virtual int remove (CT client) = 0;
+
+    // removes std :: list of data items and returns a list of clients
+    // removed if any.
+    virtual void remove
+    (
+        const std :: list <DIT> & r,
+        std :: list <CT> & out
+    ) = 0;
+
+    // removes list of data items indexed by client and returns list
+    // of data items removed if any.
+    virtual void remove
+    (
+        CT client,
+        const std :: list <DIT> & r,
+        std :: list <DIT> & out
+    ) = 0;
+
+    // adds/modifies entry in  map and returns new data items added.
+    virtual void add
+    (
+        CT client,
+        const std :: list <DIT> & l,
+        std :: list <DIT> & out
+    ) = 0;
+
+    // dtor
+    virtual ~IClientIndex () {}
+};
+
+} // namespace loc_core
+
+#endif // #ifndef __ICLIENTINDEX_H__

@@ -1,4 +1,4 @@
-/* Copyright (c) 2015-2017 The Linux Foundation. All rights reserved.
+/* Copyright (c) 2015, 2017 The Linux Foundation. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are
@@ -27,47 +27,44 @@
  *
  */
 
-#ifndef __DATAITEMID_H__
-#define __DATAITEMID_H__
+#ifndef __DATAITEMINDEX_H__
+#define __DATAITEMINDEX_H__
 
-/**
- * Enumeration of Data Item types
- * When add/remove/update changes are made to Data Items, this file needs to be updated
- * accordingly
- */
-typedef enum e_DataItemId {
-    INVALID_DATA_ITEM_ID = -1,
-    // 0 - 4
-    AIRPLANEMODE_DATA_ITEM_ID,
-    ENH_DATA_ITEM_ID,
-    GPSSTATE_DATA_ITEM_ID,
-    NLPSTATUS_DATA_ITEM_ID,
-    WIFIHARDWARESTATE_DATA_ITEM_ID,
-    // 5 - 9
-    NETWORKINFO_DATA_ITEM_ID,
-    RILVERSION_DATA_ITEM_ID,
-    RILSERVICEINFO_DATA_ITEM_ID,
-    RILCELLINFO_DATA_ITEM_ID,
-    SERVICESTATUS_DATA_ITEM_ID,
-    // 10 - 14
-    MODEL_DATA_ITEM_ID,
-    MANUFACTURER_DATA_ITEM_ID,
-    VOICECALL_DATA_ITEM,
-    ASSISTED_GPS_DATA_ITEM_ID,
-    SCREEN_STATE_DATA_ITEM_ID,
-    // 15 - 19
-    POWER_CONNECTED_STATE_DATA_ITEM_ID,
-    TIMEZONE_CHANGE_DATA_ITEM_ID,
-    TIME_CHANGE_DATA_ITEM_ID,
-    WIFI_SUPPLICANT_STATUS_DATA_ITEM_ID,
-    SHUTDOWN_STATE_DATA_ITEM_ID,
-    // 20 - 24
-    TAC_DATA_ITEM_ID,
-    MCCMNC_DATA_ITEM_ID,
-    BTLE_SCAN_DATA_ITEM_ID,
-    BT_SCAN_DATA_ITEM_ID,
-    OEM_GTP_UPLOAD_TRIGGER_READY_ITEM_ID,
-    MAX_DATA_ITEM_ID
-} DataItemId;
+#include <list>
+#include <map>
+#include <IDataItemIndex.h>
 
-#endif // #ifndef __DATAITEMID_H__
+using loc_core::IDataItemIndex;
+
+namespace loc_core
+{
+
+template <typename CT, typename DIT>
+
+class DataItemIndex : public IDataItemIndex  <CT, DIT> {
+
+public:
+
+    DataItemIndex ();
+
+    ~DataItemIndex ();
+
+    void getListOfSubscribedClients (DIT id, std :: list <CT> & out);
+
+    int remove (DIT id);
+
+    void remove (const std :: list <CT> & r, std :: list <DIT> & out);
+
+    void remove (DIT id, const std :: list <CT> & r, std :: list <CT> & out);
+
+    void add (DIT id, const std :: list <CT> & l, std :: list <CT> & out);
+
+    void add (CT client, const std :: list <DIT> & l, std :: list <DIT> & out);
+
+private:
+    std :: map < DIT, std :: list <CT> > mClientsPerDataItemMap;
+};
+
+} // namespace loc_core
+
+#endif // #ifndef __DATAITEMINDEX_H__

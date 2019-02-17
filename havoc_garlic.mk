@@ -18,9 +18,9 @@
 $(call inherit-product, device/yu/garlic/full_garlic.mk)
 
 # Inherit some common LineageOS stuff.
-$(call inherit-product, vendor/dot/config/common.mk)
+$(call inherit-product, vendor/havoc/config/common.mk)
 
-PRODUCT_NAME := dot_garlic
+PRODUCT_NAME := havoc_garlic
 BOARD_VENDOR := yu
 
 PRODUCT_GMS_CLIENTID_BASE := android-micromax

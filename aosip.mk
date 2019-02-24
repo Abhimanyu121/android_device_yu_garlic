@@ -18,9 +18,9 @@
 $(call inherit-product, device/yu/garlic/full_garlic.mk)
 
 # Inherit some common LineageOS stuff.
-$(call inherit-product, vendor/havoc/config/common.mk)
+$(call inherit-product, vendor/aosip/config/common_full_phone.mk)
 
-PRODUCT_NAME := havoc_garlic
+PRODUCT_NAME := aosip_garlic
 BOARD_VENDOR := yu
 
 PRODUCT_GMS_CLIENTID_BASE := android-micromax

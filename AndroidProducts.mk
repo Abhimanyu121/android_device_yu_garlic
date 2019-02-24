@@ -14,4 +14,4 @@
 # limitations under the License.
 
 PRODUCT_MAKEFILES := \
-    $(LOCAL_DIR)/havoc_garlic.mk
+    $(LOCAL_DIR)/aosip.mk
